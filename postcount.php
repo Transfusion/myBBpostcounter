@@ -1,6 +1,11 @@
 <?php
 include 'simple_html_dom.php';
 
+$nopointsforums = array(
+        'SPAM/Testing' => true,
+        'Introductions' => true,
+);
+
 /**
  * Writes the given text with a border into the image using TrueType fonts.
  * @author John Ciacia
@@ -62,9 +67,20 @@ while (($numberofpostsnotmadeinthismonth === 0 and $numberofpoststhismonth != 0)
                 $firstrun = False;
         }
         $html = file_get_html($url.'&sortby=dateline&order=desc&uid=&page='.$pagenumber);
-        foreach($html->find('*[style="white-space: nowrap; text-align: center;"]') as $element)
+        $rows = 0;
+        foreach($html->find('table[class="tborder"] tr') as $element)
+        {
+                // Ignore first two rows.
+                if ($rows++ < 2)
+                        continue;
+
+                $text = substr($element->find('[style="white-space: nowrap; text-align: center;"] span',0)->innertext, 0, 3);
+                $forum = $element->find('a', 3)->innertext;
+                // Forum doesn't give points.
+                if (isset($nopointsforums[$forum]))
+                    continue;
 //              if (strpos(date("m-d"), $element) != false) {
-                if ((substr($element->find('span[class="smalltext"]',0)->innertext, 0, 3) === 'Yes') or (substr($element->find('span[class="smalltext"]',0)->innertext, 0, 3) === 'Tod') or (substr($element->find('span[class="smalltext"]',0)->innertext, 0, 3) === date("m-"))) {
+                if ($text === 'Yes' or $text === 'Tod' or $text === date("m-")) {
 //                      echo $element->find('span[class="smalltext"]',0)->innertext;
                         $numberofpoststhismonth++;
 /* http://transfusion.cf/tf-content/uploads/2013/12/screenshot_134.png We are crawling the webpage for the timestamps of the posts - if they begin with YESterday or TODay or the current month.- 
@@ -72,6 +88,7 @@ If all the posts on the first search page are made this month, $pagenumber++ */
                 }
 		else {
 			$numberofpostsnotmadeinthismonth++;
+		}
 		}
         $pagenumber++;
 //      print $numberofpoststhismonth;
