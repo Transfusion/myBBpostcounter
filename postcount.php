@@ -5,7 +5,6 @@ $nopointsforums = array(
         'SPAM/Testing' => true,
         'Introductions' => true,
 );
-
 /**
  * Writes the given text with a border into the image using TrueType fonts.
  * @author John Ciacia
@@ -57,7 +56,6 @@ echo "</pre>";
 /* the above code was taken from http://stackoverflow.com/questions/20233115/how-to-get-destination-url-from-redirection-url-in-php
 when clicking on "Find more posts" it appears the resulting search page that only returns the user's posts is dynamically generated*/
 
-
 $numberofpoststhismonth = 0;
 $numberofpostsnotmadeinthismonth = 0;
 $pagenumber = 1;
@@ -70,28 +68,32 @@ while (($numberofpostsnotmadeinthismonth === 0 and $numberofpoststhismonth != 0)
         $rows = 0;
         foreach($html->find('table[class="tborder"] tr') as $element)
         {
-                // Ignore first two rows.
-                if ($rows++ < 2)
-                        continue;
 
-                $text = substr($element->find('[style="white-space: nowrap; text-align: center;"] span',0)->innertext, 0, 3);
-                $forum = $element->find('a', 3)->innertext;
-                // Forum doesn't give points.
-                if (isset($nopointsforums[$forum]))
+		// Ignore first two rows.
+                if ($rows++ < 2)
                     continue;
-//              if (strpos(date("m-d"), $element) != false) {
-                if ($text === 'Yes' or $text === 'Tod' or $text === date("m-")) {
-//                      echo $element->find('span[class="smalltext"]',0)->innertext;
-                        $numberofpoststhismonth++;
+                $post = $element->find('*[style="white-space: nowrap; text-align: center;"]',0);
+                $forum = $element->find('a', 3)->innertext;
+				
+		// Forum doesn't give points.
+				if (isset($nopointsforums[$forum])) {
+					continue;
+				}
+				if (!is_string($post->plaintext)) {
+					continue;
+				}
+                
+				if (substr($post->plaintext, 0, 3) === 'Yes' or substr($post->plaintext, 0, 3) === 'Tod' or substr($post->plaintext, 0, 3) === date("m-")) {
+					$numberofpoststhismonth++;
+
 /* http://transfusion.cf/tf-content/uploads/2013/12/screenshot_134.png We are crawling the webpage for the timestamps of the posts - if they begin with YESterday or TODay or the current month.- 
 If all the posts on the first search page are made this month, $pagenumber++ */
-                }
-		else {
-			$numberofpostsnotmadeinthismonth++;
-		}
-		}
+         }
+				else {
+					$numberofpostsnotmadeinthismonth++;
+				}
+	}
         $pagenumber++;
-//      print $numberofpoststhismonth;
 }
 
 header('Pragma: public');
