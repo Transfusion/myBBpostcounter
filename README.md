@@ -2,7 +2,7 @@ myBBpostcounter
 ===============
 
 Result:  
-![](http://srv1.transfusion.cf/fvpspost/postcount.php?userid=8307)
+![](http://main.node2.cu.cc/fvpspost/postcount.php?userid=8307)
 
 Open postcount.php and edit "freevpsbg.png" (the background image) and "visitor1.ttf" (the font used in the text) to your liking.
 
