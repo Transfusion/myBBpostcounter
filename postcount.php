@@ -57,6 +57,7 @@ echo "</pre>";
 when clicking on "Find more posts" it appears the resulting search page that only returns the user's posts is dynamically generated*/
 
 $numberofpoststhismonth = 0;
+$uncountedposts = 0;
 $numberofpostsnotmadeinthismonth = 0;
 $pagenumber = 1;
 $firstrun = True;
@@ -64,7 +65,7 @@ while (($numberofpostsnotmadeinthismonth === 0 and $numberofpoststhismonth != 0)
         if ($pagenumber === 1) {
                 $firstrun = False;
         }
-        $html = file_get_html($url.'&sortby=dateline&order=desc&uid=&page='.$pagenumber);
+        $html = file_get_html('http://'.substr($url, 19).'&sortby=dateline&order=desc&uid=&page='.$pagenumber);
         $rows = 0;
         foreach($html->find('table[class="tborder"] tr') as $element)
         {
@@ -77,6 +78,7 @@ while (($numberofpostsnotmadeinthismonth === 0 and $numberofpoststhismonth != 0)
 				
 		// Forum doesn't give points.
 				if (isset($nopointsforums[$forum])) {
+                                        $uncountedposts++;
 					continue;
 				}
 				if (!is_string($post->plaintext)) {
@@ -93,12 +95,21 @@ If all the posts on the first search page are made this month, $pagenumber++ */
 					$numberofpostsnotmadeinthismonth++;
 				}
 	}
+	$totalposts = $uncountedposts+$numberofpoststhismonth;
+	if (($totalposts %= 20) != 0) {
+                $numberofpostsnotmadeinthismonth++;
+        }
         $pagenumber++;
 }
 
 header('Pragma: public');
 header('Cache-Control: max-age=240');
 header('Expires: '. gmdate('D, d M Y H:i:s \G\M\T', time() + 240));
+if(isset($_SERVER['HTTP_IF_MODIFIED_SINCE'])){ 
+  // if the browser has a cached version of this image, send 304 
+  header('Last-Modified: '.$_SERVER['HTTP_IF_MODIFIED_SINCE'],true,304); 
+  exit; 
+} 
 // Force the browser to cache the image for 4 minutes. Crawling webpages like that is not exactly good etiquette.
 
 header("Content-Type: image/png");
