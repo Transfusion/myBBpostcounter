@@ -65,7 +65,7 @@ while (($numberofpostsnotmadeinthismonth === 0 and $numberofpoststhismonth != 0)
         if ($pagenumber === 1) {
                 $firstrun = False;
         }
-        $html = file_get_html('http://'.substr($url, 19).'&sortby=dateline&order=desc&uid=&page='.$pagenumber);
+        $html = file_get_html($url.'&sortby=dateline&order=desc&uid=&page='.$pagenumber);
         $rows = 0;
         foreach($html->find('table[class="tborder"] tr') as $element)
         {
