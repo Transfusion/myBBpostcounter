@@ -1,6 +1,8 @@
 <?php
 include 'simple_html_dom.php';
-
+if(!$_GET)die("Please use an id with parameter ?userid=youruserid");
+if(!$_GET['userid'])die("Please enter a user ID!");
+if(!IS_NUMERIC($_GET['userid']))die("Please use numeric ID!");
 $nopointsforums = array(
         'SPAM/Testing' => true,
         'Introductions' => true,
@@ -38,6 +40,7 @@ $url="http://freevps.us/search.php?action=finduser&uid=".$_GET["userid"];
 $ch = curl_init();
 curl_setopt($ch, CURLOPT_URL, $url);
 curl_setopt($ch, CURLOPT_HEADER, true);
+curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false );
 curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true); // Must be set to true so that PHP follows any "Location:" header
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 
